@@ -43,17 +43,42 @@ function calcularArea(req, res, queryString) {
     const lado = parseFloat(params.get('lado'));
 
     if (isNaN(lado)) {
-        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader('Content-Type', 'text/html');
         res.statusCode = 400;
-        res.end('Lado inválido. Certifique-se de fornecer um número válido.');
+        const errorResponse = `<!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+            </head>
+            <body>
+                <h1>Erro no Cálculo</h1>
+                <p>Lado inválido. Certifique-se de fornecer um número válido.</p>
+            </body>
+            </html>`;
+        res.end(errorResponse);
     } else {
         const area = calcularAreaOctogonal(lado);
 
-        res.setHeader('Content-Type', 'text/plain');
-        const message = `Lado: ${lado} metros\nÁrea: ${area.toFixed(2)} metros quadrados\nExplicação do Cálculo: ${
-            area < 20 ? 'um suporte pequeno.' : 'um suporte especial.'
-        }\n\nDesenvolvido por Jeovah`;
-        res.end(message);
+        res.setHeader('Content-Type', 'text/html');
+        const explanation = area < 20
+            ? 'um suporte pequeno.'
+            : 'um suporte especial.';
+
+        const responseBody = `<!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+            </head>
+            <body>
+                <h1>Resultado do Cálculo</h1>
+                <p>Lado: ${lado} metros</p>
+                <p>Área: ${area.toFixed(2)} metros quadrados</p>
+                <p>Explicação do Cálculo: Este é ${explanation}</p>
+                <p>Desenvolvido por Jeovah</p>
+            </body>
+            </html>`;
+
+        res.end(responseBody);
     }
 }
 
