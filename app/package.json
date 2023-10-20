@@ -1,0 +1,17 @@
+{
+  "name": "suporte",
+  "version": "1.0.0",
+  "description": "suporte",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "keywords": [
+    "suporte"
+  ],
+  "author": "Jeovah Mario",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
