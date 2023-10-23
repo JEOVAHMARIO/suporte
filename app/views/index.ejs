@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <%- include ('/home/node/app/views/cabecalho.ejs') %>
+    <h1>Problema: Cálculo da Área de um Suporte Octogonal!</h1>
+    <p><strong>Problema:</strong></p>
+    <p>Determine a área de um suporte octogonal com base no comprimento de um dos lados. Se a área for menor que 20 metros quadrados, o suporte é considerado pequeno. Caso contrário, ele é especial.</p>
+    <form action="/calcular" method="post">
+        <label>
+            <span>Modelo</span>
+            <input name="modelo">
+        </label>
+        <label>
+            <span>Comprimento do Lado (em metros)</span>
+            <input name="lado">
+        </label>
+        <button>Calcular</button>
+    </form>
+</body>
+</html>
