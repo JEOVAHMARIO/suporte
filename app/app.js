@@ -1,26 +1,37 @@
 const http = require('http');
-const CalcularController = require('./controllers/CalcularController');
+const SuporteController = require('./controllers/SuporteController');
 const EstaticoController = require('./controllers/EstaticoController');
 const AutorController = require('./controllers/AutorController');
+const SuporteDao = require('./lib/suporte/SuporteDao');
 
-let calcularController = new CalcularController();
-let estaticoController = new EstaticoController();
-let autorController = new AutorController();
+const suporteDao = new SuporteDao();
+const suporteController = new SuporteController(suporteDao);
+const estaticoController = new EstaticoController();
+const autorController = new AutorController();
 
 const PORT = 3000;
 
-const server = http.createServer(function (req, res) {
-    let [url, queryString] = req.url.split('?');
+const server = http.createServer(async (req, res) => {
+    const [url, queryString] = req.url.split('?');
+    const urlList = url.split('/');
+    const endpoint = urlList[1];
+    const method = req.method;
 
-    if (url === '/index') {
-        calcularController.index(req, res);
-    } else if (url === '/calcular') {
-        if (req.method === 'POST') {
-            calcularController.calcularArea(req, res);
+    if (endpoint === 'index') {
+        suporteController.index(req, res);
+    } else if (endpoint === 'suporte') {
+        if (method === 'GET') {
+            suporteController.listar(req, res);
+        } else if (method === 'POST') {
+            suporteController.inserir(req, res);
+        } else if (method === 'PUT') {
+            suporteController.alterar(req, res);
+        } else if (method === 'DELETE') {
+            suporteController.apagar(req, res);
         } else {
-            naoEncontrado(req, res);
+            estaticoController.naoEncontrado(req, res);
         }
-    } else if (url === '/autor') {
+    } else if (endpoint === 'autor') {
         autorController.index(req, res);
     } else {
         estaticoController.naoEncontrado(req, res);
