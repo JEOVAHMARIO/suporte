@@ -4,10 +4,10 @@ const EstaticoController = require('./controllers/EstaticoController');
 const AutorController = require('./controllers/AutorController');
 const SuporteDao = require('./lib/suporte/SuporteDao');
 
-const suporteDao = new SuporteDao();
-const suporteController = new SuporteController(suporteDao);
-const estaticoController = new EstaticoController();
-const autorController = new AutorController();
+let suporteDao = new SuporteDao();
+let suporteController = new SuporteController(suporteDao);
+let estaticoController = new EstaticoController();
+let autorController = new AutorController();
 
 const PORT = 3000;
 
