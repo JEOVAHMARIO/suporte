@@ -2,20 +2,22 @@ const http = require('http');
 const SuporteController = require('./controllers/SuporteController');
 const EstaticoController = require('./controllers/EstaticoController');
 const AutorController = require('./controllers/AutorController');
+const AuthController = require('./controllers/AuthController');
 const SuporteDao = require('./lib/suporte/SuporteDao');
 
-const suporteDao = new SuporteDao();
-const suporteController = new SuporteController(suporteDao);
-const estaticoController = new EstaticoController();
-const autorController = new AutorController();
+let suporteDao = new SuporteDao();
+let suporteController = new SuporteController(suporteDao);
+let estaticoController = new EstaticoController();
+let autorController = new AutorController();
+let authController = new AuthController(suporteDao);
 
 const PORT = 3000;
 
 const server = http.createServer(async (req, res) => {
-    const [url, queryString] = req.url.split('?');
-    const urlList = url.split('/');
-    const endpoint = urlList[1];
-    const method = req.method;
+    let [url, queryString] = req.url.split('?');
+    let urlList = url.split('/');
+    let endpoint = urlList[1];
+    let method = req.method;
 
     if (endpoint === 'index') {
         suporteController.index(req, res);
@@ -25,12 +27,20 @@ const server = http.createServer(async (req, res) => {
         } else if (method === 'POST') {
             suporteController.inserir(req, res);
         } else if (method === 'PUT') {
-            suporteController.alterar(req, res);
+            authController.autorizar(req, res, function() {
+                suporteController.alterar(req, res);
+            }, ['admin', 'geral']); 
         } else if (method === 'DELETE') {
-            suporteController.apagar(req, res);
+            authController.autorizar(req, res, function() {
+                suporteController.apagar(req, res);
+            }, ['admin']); 
         } else {
             estaticoController.naoEncontrado(req, res);
         }
+    } else if (endpoint === 'login') {
+        authController.index(req, res); 
+    } else if (endpoint === 'logar') {
+        authController.logar(req, res); 
     } else if (endpoint === 'autor') {
         autorController.index(req, res);
     } else {

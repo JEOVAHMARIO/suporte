@@ -1,45 +1,50 @@
 const utils = require('./../lib/utils');
 const Octogonal = require('./../lib/suporte/Octogonal');
-const SuporteDao = require('./../lib/suporte/SuporteDao');
 
 class SuporteController {
-    constructor() {
-        this.suporteDao = new SuporteDao();
+    constructor(suporteDao) {
+        this.suporteDao = suporteDao;
+        this.SEGREDO_JWT = process.env.SEGREDO_JWT;
     }
 
     index(req, res) {
         utils.renderizarEjs(res, './views/index.ejs');
     }
 
-    async calcularArea(req, res) {
-        let corpoTexto = '';
-
+    async calcularArea(req, res){               
+        let corpoTexto ='';
         req.on('data', function (pedaco) {
             corpoTexto += pedaco;
         });
-
         req.on('end', () => {
-            const { lado } = utils.decodificarUrl(corpoTexto);
-
-            if (isNaN(lado)) {
-                res.writeHead(400, { 'Content-Type': 'text/html' });
-                res.end('<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head><body><h1>Erro no Cálculo</h1><p>Comprimento do lado inválido. Certifique-se de fornecer um número válido.</p></body></html>');
-            } else {
-                const octogonal = new Octogonal("Suporte X", lado);
-                octogonal.tipo = octogonal.area < 20 ? 'pequeno' : 'especial';
-
-                const area = octogonal.area;
-                const explicacao = octogonal.explicacao;
-
-                let resultado = {
-                    area: area,
-                    explicacao: explicacao,
-                    tipo: octogonal.tipo
-                };
-
-                utils.renderizarEjs(res, './views/calculo.ejs', resultado);
+            let propriedades = corpoTexto.split('&');
+            let query = {};
+            for (let propriedade of propriedades) {
+                let [variavel, valor] = propriedade.split('=');
+                query[variavel] = valor;
             }
-        });
+            let octogonal = new Octogonal();
+            octogonal.nome = query.nome;
+            octogonal.lado = parseFloat(query.lado);
+                       
+            utils.renderizarEjs(res, './views/area.ejs', octogonal);
+        })
+    }
+
+    async listar(req, res) {
+        let suportes = this.suporteDao.listar();
+        let dados = [];
+        for (let octogonal of suportes) {
+            const area = octogonal.area;
+            const explicacao = octogonal.explicacao;
+            dados.push({
+                nome: octogonal.nome,
+                lado: octogonal.lado,
+                calcularArea: area,
+                explicacao: explicacao
+            });
+        }
+        utils.renderizarJSON(res, dados);
     }
 
     async listar(req, res) {
@@ -74,6 +79,8 @@ class SuporteController {
                 suporte: {
                     nome: octogonal.nome,
                     lado: octogonal.lado,
+                    senha: octogonal.senha,
+                    papel: octogonal.papel,
                     area: area,
                     explicacao: explicacao,
                     tipo: octogonal.tipo
@@ -85,9 +92,9 @@ class SuporteController {
 
     async alterar(req, res) {
         let octogonal = await this.getOctogonalDaRequisicao(req);
-        const [url, queryString] = req.url.split('?');
-        const urlList = url.split('/');
-        const endpoint = urlList[1];
+        let [url, queryString] = req.url.split('?');
+        let urlList = url.split('/');
+        let endpoint = urlList[1];
         let id = urlList[2];
         try {
             this.suporteDao.alterar(id, octogonal);
@@ -102,9 +109,9 @@ class SuporteController {
     }
 
     apagar(req, res) {
-        const [url, queryString] = req.url.split('?');
-        const urlList = url.split('/');
-        const endpoint = urlList[1];
+        let [url, queryString] = req.url.split('?');
+        let urlList = url.split('/');
+        url = urlList[1];
         let id = urlList[2];
         this.suporteDao.apagar(id);
         utils.renderizarJSON(res, {
@@ -114,14 +121,14 @@ class SuporteController {
     }
 
     async getOctogonalDaRequisicao(req) {
-        const corpoJSON = await utils.getCorpo(req);
-        if (corpoJSON && !isNaN(corpoJSON.lado)) {
-            const octogonal = new Octogonal("Suporte []", corpoJSON.lado);
-            octogonal.tipo = octogonal.area < 20 ? 'pequeno' : 'especial';
-            return octogonal;
-        } else {
-            return null;
-        }
+        let corpo = await utils.getCorpo(req);
+        let octogonal = new Octogonal(
+            corpo.nome,
+            parseFloat(corpo.lado),
+            corpo.senha,
+            corpo.papel
+        );
+        return octogonal;
     }
 }
 
