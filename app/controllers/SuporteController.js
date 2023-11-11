@@ -1,13 +1,11 @@
 const utils = require('./../lib/utils');
 const Octogonal = require('./../lib/suporte/Octogonal');
-const SuporteDao = require('./../lib/suporte/SuporteDao');
 
 class SuporteController {
     constructor(suporteDao) {
         this.suporteDao = suporteDao;
         this.SEGREDO_JWT = process.env.SEGREDO_JWT;
     }
-
 
     index(req, res) {
         utils.renderizarEjs(res, './views/index.ejs');
@@ -25,11 +23,11 @@ class SuporteController {
                 let [variavel, valor] = propriedade.split('=');
                 query[variavel] = valor;
             }
-            let poligono = new Poligono();
-            poligono.nome = query.nome;
-            poligono.lado = parseFloat(query.lado);
+            let octogonal = new Octogonal();
+            octogonal.nome = query.nome;
+            octogonal.lado = parseFloat(query.lado);
                        
-            utils.renderizarEjs(res, './views/area.ejs', poligono);
+            utils.renderizarEjs(res, './views/area.ejs', octogonal);
         })
     }
 
