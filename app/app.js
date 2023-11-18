@@ -3,9 +3,19 @@ const SuporteController = require('./controllers/SuporteController');
 const EstaticoController = require('./controllers/EstaticoController');
 const AutorController = require('./controllers/AutorController');
 const AuthController = require('./controllers/AuthController');
+const SuporteMysqlDao = require('./lib/suporte/SuporteMysqlDao');
 const SuporteDao = require('./lib/suporte/SuporteDao');
+const mysql = require('mysql');
 
-let suporteDao = new SuporteDao();
+const pool  = mysql.createPool({
+    connectionLimit : 10,
+    host            : 'bd',
+    user            : process.env.MARIADB_USER,
+    password        : process.env.MARIADB_PASSWORD,
+    database        : process.env.MARIADB_DATABASE
+});
+
+let suporteDao = new SuporteMysqlDao(pool);
 let suporteController = new SuporteController(suporteDao);
 let estaticoController = new EstaticoController();
 let autorController = new AutorController();

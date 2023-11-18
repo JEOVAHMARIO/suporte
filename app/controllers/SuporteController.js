@@ -32,63 +32,66 @@ class SuporteController {
     }
 
     async listar(req, res) {
-        let suportes = this.suporteDao.listar();
-        let dados = [];
-        for (let octogonal of suportes) {
-            const area = octogonal.area;
-            const explicacao = octogonal.explicacao;
-            dados.push({
-                nome: octogonal.nome,
-                lado: octogonal.lado,
-                calcularArea: area,
-                explicacao: explicacao
-            });
-        }
-        utils.renderizarJSON(res, dados);
-    }
-
-    async listar(req, res) {
-        let suporte = this.suporteDao.listar();
-        let dados = [];
-        for (let octogonal of suporte) {
-            const area = octogonal.area;
-            const explicacao = octogonal.explicacao;
-            dados.push({
-                nome: octogonal.nome,
-                lado: octogonal.lado,
-                calcularArea: area,
-                explicacao: explicacao
-            });
-        }
-        utils.renderizarJSON(res, dados);
-    }
-
-    async inserir(req, res) {
-        const octogonal = await this.getOctogonalDaRequisicao(req);
+        try {
+            let suporte = await this.suporteDao.listar();
+            let dados = [];
     
-        if (!octogonal || isNaN(octogonal.lado)) {
-            utils.renderizarJSON(res, {
-                mensagem: 'Lado inválido'
-            }, 400);
-        } else {
-            this.suporteDao.inserir(octogonal);
-            const area = octogonal.area;
-            const explicacao = octogonal.explicacao;
-    
-            utils.renderizarJSON(res, {
-                suporte: {
+            for (let octogonal of suporte) {
+                const area = octogonal.area;
+                const explicacao = octogonal.explicacao;
+                dados.push({
                     nome: octogonal.nome,
                     lado: octogonal.lado,
-                    senha: octogonal.senha,
-                    papel: octogonal.papel,
-                    area: area,
-                    explicacao: explicacao,
-                    tipo: octogonal.tipo
-                },
-                mensagem: 'mensagem_suporte_cadastrado'
-            });
+                    calcularArea: area,
+                    explicacao: explicacao
+                });
+            }
+    
+            utils.renderizarJSON(res, dados);
+        } catch (error) {
+            utils.renderizarJSON(res, {
+                mensagem: 'Erro ao listar suportes: ' + error.message
+            }, 500);
         }
     }
+    
+    async inserir(req, res) {
+        try {
+            let octogonal = await this.getOctogonalDaRequisicao(req);
+    
+            if (!octogonal || isNaN(octogonal.lado)) {
+                utils.renderizarJSON(res, {
+                    mensagem: 'Lado inválido'
+                }, 400);
+            } else {
+                octogonal.id = await this.suporteDao.inserir(octogonal);
+    
+                const area = octogonal.area;
+                const explicacao = octogonal.explicacao;
+    
+                utils.renderizarJSON(res, {
+                    suporte: {
+                        id: octogonal.id, // Include the ID in the response
+                        nome: octogonal.nome,
+                        lado: octogonal.lado,
+                        senha: octogonal.senha,
+                        papel: octogonal.papel,
+                        area: area,
+                        explicacao: explicacao,
+                        tipo: octogonal.tipo
+                    },
+                    mensagem: 'mensagem_suporte_cadastrado'
+                });
+            }
+        } catch (error) {
+            // Handle the error, e.g., log it or send an error response
+            console.error('Error during inserir:', error);
+            utils.renderizarJSON(res, {
+                mensagem: 'Erro durante a inserção'
+            }, 500);
+        }
+    }
+    
 
     async alterar(req, res) {
         let octogonal = await this.getOctogonalDaRequisicao(req);

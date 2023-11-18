@@ -2,8 +2,8 @@ const utils = require("../lib/utils");
 const jwt = require('jsonwebtoken');
 
 class AuthController {
-    constructor(usuariosDao) {
-        this.usuariosDao = usuariosDao;
+    constructor(suporteDao) {
+        this.suporteDao = suporteDao;
         this.SEGREDO_JWT = process.env.SEGREDO_JWT;
     }
 
@@ -12,24 +12,35 @@ class AuthController {
     }
 
     async logar(req, res) {
-        let corpo = await utils.getCorpo(req);
-        let usuario = this.usuariosDao.autenticar(corpo.nome, corpo.senha);
-        if (usuario) {
-            console.log({usuario});          
-            let token = jwt.sign({
-                ...usuario
-            }, this.SEGREDO_JWT);
+        try {
+            let corpo = await utils.getCorpo(req);
+            let usuario = await this.suporteDao.autenticar(corpo.nome, corpo.senha);
+    
+            if (usuario) {
+                let token = jwt.sign({
+                    nome: usuario.nome,
+                    lado: usuario.lado,
+                    papel: usuario.papel
+                }, this.SEGREDO_JWT);
+    
+                utils.renderizarJSON(res, {
+                    token,
+                    mensagem: 'Usuário logado com sucesso!'
+                });
+            } else {
+                utils.renderizarJSON(res, {
+                    mensagem: 'Usuário ou senha inválidos!'
+                }, 401);
+            }
+        } catch (error) {
+            console.error('Erro ao realizar login:', error);
             utils.renderizarJSON(res, {
-                token,
-                mensagem: 'Usuário logado com sucesso!'
-            });
-        }
-        else {
-            utils.renderizarJSON(res, {
-                mensagem: 'Usuário ou senha inválidos!'
-            }, 401);
+                mensagem: 'Erro ao realizar login.'
+            }, 500);
         }
     }
+    
+    
 
     // middleware
     autorizar(req, res, proximoControlador, papeisPermitidos) {

@@ -1,4 +1,3 @@
-
 const Octogonal = require("./Octogonal")
 const bcrypt = require('bcrypt')
 
@@ -12,15 +11,18 @@ class SuporteDao {
     }
 
     inserir(octogonal) {
-        console.log(1);
-        if (!octogonal || isNaN(octogonal.lado) || octogonal.lado <= 0 || !octogonal.nome || !octogonal.senha ) {
+        if (!octogonal || isNaN(octogonal.lado) || octogonal.lado <= 0 || !octogonal.nome || !octogonal.senha) {
             return false;
         }
         octogonal.senha = bcrypt.hashSync(octogonal.senha, 10);
-        this.octogonais.push(octogonal);
-
+    
+        // Criando uma instância de Octogonal
+        const octogonalObj = new Octogonal(octogonal.nome, octogonal.lado, octogonal.senha, 'geral');
+    
+        this.octogonais.push(octogonalObj);
         return true;
     }
+    
 
     alterar(id, octogonal) {
         this.validar(octogonal);
@@ -45,16 +47,14 @@ class SuporteDao {
     }
 
     autenticar(nome, senha) {
-        console.log(nome, senha, this.listar());
         for (let octogonal of this.listar()) {
-            console.log(nome, senha,octogonal );
-            if (octogonal.nome === nome && bcrypt.compareSync(
-                senha, octogonal.senha)) {
-                    return octogonal;
-                }
+            if (octogonal.nome === nome && bcrypt.compareSync(senha, octogonal.senha)) {
+                return octogonal;
+            }
         }
         return null;
     }
+    
 }
 
 module.exports = SuporteDao;

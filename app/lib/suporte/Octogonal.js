@@ -2,7 +2,7 @@ class Octogonal {
     constructor(nome, lado, senha, papel) {
         this.nome = nome;
         this.lado = parseFloat(lado);
-        this.senha = senha;
+        this.senha = senha; 
         this.papel = papel;
         this.calcularArea();
     }
