@@ -16,7 +16,6 @@ class SuporteDao {
         }
         octogonal.senha = bcrypt.hashSync(octogonal.senha, 10);
     
-        // Criando uma instância de Octogonal
         const octogonalObj = new Octogonal(octogonal.nome, octogonal.lado, octogonal.senha, 'geral');
     
         this.octogonais.push(octogonalObj);
