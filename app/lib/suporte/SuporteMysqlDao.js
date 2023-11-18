@@ -41,7 +41,6 @@ class SuporteMysqlDao {
                 if (error) {
                     reject('Erro: ' + error.message);
                 } else {
-                    // Corrected the variable name to resultado
                     if (resultado.length > 0) {
                         let linha = resultado[0];
                         if (bcrypt.compareSync(octogonal.senha, linha.senha)) {
