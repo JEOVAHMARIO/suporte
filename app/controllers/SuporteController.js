@@ -125,14 +125,17 @@ class SuporteController {
 
     async getOctogonalDaRequisicao(req) {
         let corpo = await utils.getCorpo(req);
+    
+        let senha = corpo.senha || 'senha_padrao';
+    
         let octogonal = new Octogonal(
             corpo.nome,
             parseFloat(corpo.lado),
-            corpo.senha,
+            senha, 
             corpo.papel
         );
         return octogonal;
-    }
+    }    
 }
 
 module.exports = SuporteController;
