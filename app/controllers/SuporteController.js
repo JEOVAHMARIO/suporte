@@ -71,7 +71,7 @@ class SuporteController {
     
                 utils.renderizarJSON(res, {
                     suporte: {
-                        id: octogonal.id, // Include the ID in the response
+                        id: octogonal.id,
                         nome: octogonal.nome,
                         lado: octogonal.lado,
                         senha: octogonal.senha,
@@ -84,7 +84,6 @@ class SuporteController {
                 });
             }
         } catch (error) {
-            // Handle the error, e.g., log it or send an error response
             console.error('Error during inserir:', error);
             utils.renderizarJSON(res, {
                 mensagem: 'Erro durante a inserção'
