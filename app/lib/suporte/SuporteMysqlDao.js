@@ -5,22 +5,18 @@ class SuporteMysqlDao {
     constructor(pool) {
         this.pool = pool;
     }
-
+    
     listar() {
         return new Promise((resolve, reject) => {
-            if (!this.pool) {
-                reject('Erro: Conexão com o banco de dados não foi estabelecida.');
-                return;
-            }
-
-            const query = 'SELECT * FROM octogonais';
-            this.pool.query(query, (error, results, fields) => {
+            this.pool.query('SELECT * FROM octogonais', function (error, linhas, fields) {
                 if (error) {
-                    reject('Erro: ' + error.message);
-                } else {
-                    const octogonais = results.map(linha => new Octogonal(linha.nome, linha.lado));
-                    resolve(octogonais);
+                    return reject('Erro: ' + error.message);
                 }
+                let octogonais = linhas.map(linha => {
+                    let { nome, lado, senha, papel } = linha;
+                    return new Octogonal(nome, lado, senha, papel);
+                })
+                resolve(octogonais);
             });
         });
     }
@@ -57,7 +53,6 @@ class SuporteMysqlDao {
         });
     }
     
-
     alterar(id, octogonal) {
         this.validar(octogonal);
         this.octogonais[id] = octogonal;
@@ -89,32 +84,28 @@ class SuporteMysqlDao {
         if (!octogonal.nome) {
             throw new Error('mensagem_nome_em_branco');
         }
-        if (!octogonal.senha) {
-            throw new Error('mensagem_senha_em_branco');
-        }
         if (octogonal.lado < 0) {
             throw new Error('Lado do octogonal não pode ser menor que 0');
         }
     }
-
+    
     autenticar(nome, senha) {
-        return this.listar()
-            .then((octogonais) => {
-                console.log(nome, senha, octogonais);
-                for (let octogonal of octogonais) {
-                    console.log(nome, senha, octogonal);
-                    if (octogonal.nome === nome && octogonal.senha && bcrypt.compareSync(senha, octogonal.senha)) {
-                        return new Octogonal(octogonal.nome, octogonal.lado, octogonal.senha, 'geral');
+        return new Promise((resolve, reject) => {
+            let sql = 'SELECT * FROM octogonais WHERE nome=?';
+            this.pool.query(sql, [nome, senha], function (error, linhas, fields) {
+                if (error) {
+                    return reject('Erro: ' + error.message);
+                }
+                for (let linha of linhas) {
+                    console.log('autenticar', senha, linha);
+                    if (bcrypt.compareSync(senha, linha.senha)) {
+                        let { nome, lado, senha, papel } = linha;
+                        return resolve(new Octogonal(nome, lado, senha, papel));
                     }
                 }
-                return null;
-            })
-            .catch((error) => {
-                console.error('Erro ao buscar dados para autenticação:', error);
-                return null;
+                return resolve(null);
             });
+        });
     }
-    
-}
-
-module.exports = SuporteMysqlDao;
+} 
+module.exports = SuporteMysqlDao; 
