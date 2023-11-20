@@ -27,7 +27,7 @@ class SuporteController {
             octogonal.nome = query.nome;
             octogonal.lado = parseFloat(query.lado);
                        
-            utils.renderizarEjs(res, './views/area.ejs', octogonal);
+            utils.renderizarEjs(res, './views/suporte.ejs', octogonal);
         })
     }
 
