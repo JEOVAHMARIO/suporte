@@ -2,13 +2,23 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <script src="/_js/suporte.js"></script>
+    <style>
+        .pequeno {
+            color: green;
+        }
+        .especial {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     <%- include ('/home/node/app/views/cabecalho.ejs') %>
-    <h1>Problema: Cálculo da Área de um Suporte Octogonal!</h1>
+    <img src="_img/logo.png">
+    <h1>Cálculo da Área de um Suporte Octogonal!</h1>
     <p><strong>Problema:</strong></p>
     <p>Determine a área de um suporte octogonal com base no comprimento de um dos lados. Se a área for menor que 20 metros quadrados, o suporte é considerado pequeno. Caso contrário, ele é especial.</p>
-    <form action="/suporte" method="post">
+    <form method="post" onsubmit="event.preventDefault(); calcularArea();">
         <label>
             <span>Nome</span>
             <input name="nome">
@@ -18,7 +28,10 @@
             <input name="lado">
         </label>
         <button type="submit">Ok</button>
-    </form>
-    
+    </form>    
+    <div id="resposta"></div>
+
+    <!-- Adicionando o script aqui -->
+    <script src="/_js/suporte.js"></script>
 </body>
 </html>

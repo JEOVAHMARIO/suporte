@@ -27,7 +27,7 @@ class SuporteController {
             octogonal.nome = query.nome;
             octogonal.lado = parseFloat(query.lado);
                        
-            utils.renderizarEjs(res, './views/area.ejs', octogonal);
+            utils.renderizarEjs(res, './views/suporte.ejs', octogonal);
         })
     }
 
@@ -71,7 +71,7 @@ class SuporteController {
     
                 utils.renderizarJSON(res, {
                     suporte: {
-                        id: octogonal.id, // Include the ID in the response
+                        id: octogonal.id,
                         nome: octogonal.nome,
                         lado: octogonal.lado,
                         senha: octogonal.senha,
@@ -84,14 +84,12 @@ class SuporteController {
                 });
             }
         } catch (error) {
-            // Handle the error, e.g., log it or send an error response
             console.error('Error during inserir:', error);
             utils.renderizarJSON(res, {
                 mensagem: 'Erro durante a inserção'
             }, 500);
         }
     }
-    
 
     async alterar(req, res) {
         let octogonal = await this.getOctogonalDaRequisicao(req);
@@ -122,17 +120,20 @@ class SuporteController {
             id: id
         });
     }
-
+    
     async getOctogonalDaRequisicao(req) {
         let corpo = await utils.getCorpo(req);
+    
+        let senha = corpo.senha || 'senha_padrao';
+    
         let octogonal = new Octogonal(
             corpo.nome,
             parseFloat(corpo.lado),
-            corpo.senha,
+            senha, 
             corpo.papel
         );
         return octogonal;
-    }
+    }    
 }
 
 module.exports = SuporteController;

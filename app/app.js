@@ -54,7 +54,7 @@ const server = http.createServer(async (req, res) => {
     } else if (endpoint === 'autor') {
         autorController.index(req, res);
     } else {
-        estaticoController.naoEncontrado(req, res);
+        estaticoController.procurar(req, res);
     }
 });
 
