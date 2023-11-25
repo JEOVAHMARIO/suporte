@@ -10,31 +10,37 @@ let estaticoController = new EstaticoController();
 let autorController = new AutorController();
 
 const PORT = 3000;
+const server = http.createServer((req, res) => {
+    let [url, querystring] = req.url.split('?');
+    let urlList = url.split('/');
+    url = urlList[1];
+    let metodo = req.method;
 
-const server = http.createServer(async (req, res) => {
-    const [url, queryString] = req.url.split('?');
-    const urlList = url.split('/');
-    const endpoint = urlList[1];
-    const method = req.method;
-
-    if (endpoint === 'index') {
+    if (url=='index') {
         suporteController.index(req, res);
-    } else if (endpoint === 'suporte') {
-        if (method === 'GET') {
-            suporteController.listar(req, res);
-        } else if (method === 'POST') {
-            suporteController.inserir(req, res);
-        } else if (method === 'PUT') {
-            suporteController.alterar(req, res);
-        } else if (method === 'DELETE') {
-            suporteController.apagar(req, res);
-        } else {
-            estaticoController.naoEncontrado(req, res);
-        }
-    } else if (endpoint === 'autor') {
-        autorController.index(req, res);
-    } else {
-        estaticoController.naoEncontrado(req, res);
+    }
+    else if (url=='area') {
+        suporteController.area(req, res);
+    }
+
+    else if (url == 'suporte' && metodo == 'GET') {
+        suporteController.listar(req, res);
+    }
+    else if (url == 'suporte' && metodo == 'POST') {
+        suporteController.inserir(req, res);
+    }
+    else if (url == 'suporte' && metodo == 'PUT') {
+        suporteController.alterar(req, res);
+    }
+    else if (url == 'suporte' && metodo == 'DELETE') {
+        suporteController.apagar(req, res);
+    }
+
+    else if (url=='autor') {
+        autorController.autor(req, res);    
+    }
+    else {
+        estaticoController.naoEncontrado(req, res);   
     }
 });
 
