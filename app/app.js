@@ -69,7 +69,7 @@ const server = http.createServer(async (req, res) => {
     } else if (endpoint === 'logar') {
         authController.logar(req, res);
     } else if (endpoint === 'autor') {
-        autorController.index(req, res);
+        autorController.autor(req, res);
     } else {
         estaticoController.procurar(req, res);
     }
