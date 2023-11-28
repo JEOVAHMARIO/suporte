@@ -30,64 +30,34 @@ class SuporteController {
             utils.renderizarEjs(res, './views/suporte.ejs', octogonal);
         })
     }
-
+    
     async listar(req, res) {
-        try {
-            let suporte = await this.suporteDao.listar();
-            let dados = [];
-    
-            for (let octogonal of suporte) {
-                const area = octogonal.area;
-                const explicacao = octogonal.explicacao;
-                dados.push({
-                    nome: octogonal.nome,
-                    lado: octogonal.lado,
-                    calcularArea: area,
-                    explicacao: explicacao
-                });
-            }
-    
-            utils.renderizarJSON(res, dados);
-        } catch (error) {
-            utils.renderizarJSON(res, {
-                mensagem: 'Erro ao listar suportes: ' + error.message
-            }, 500);
-        }
+        let octogonais = await this.suporteDao.listar();
+        let dados = octogonais.map(octogonal => {
+            return {
+                ...octogonal,
+                area: octogonal.calcularArea(),
+            };
+        });
+
+        utils.renderizarJSON(res, dados);
     }
     
     async inserir(req, res) {
+        let octogonal = await this.getOctogonalDaRequisicao(req);
         try {
-            let octogonal = await this.getOctogonalDaRequisicao(req);
-    
-            if (!octogonal || isNaN(octogonal.lado)) {
-                utils.renderizarJSON(res, {
-                    mensagem: 'Lado inválido'
-                }, 400);
-            } else {
-                octogonal.id = await this.suporteDao.inserir(octogonal);
-    
-                const area = octogonal.area;
-                const explicacao = octogonal.explicacao;
-    
-                utils.renderizarJSON(res, {
-                    suporte: {
-                        id: octogonal.id,
-                        nome: octogonal.nome,
-                        lado: octogonal.lado,
-                        senha: octogonal.senha,
-                        papel: octogonal.papel,
-                        area: area,
-                        explicacao: explicacao,
-                        tipo: octogonal.tipo
-                    },
-                    mensagem: 'mensagem_suporte_cadastrado'
-                });
-            }
-        } catch (error) {
-            console.error('Error during inserir:', error);
+            octogonal.id = await this.suporteDao.inserir(octogonal);
             utils.renderizarJSON(res, {
-                mensagem: 'Erro durante a inserção'
-            }, 500);
+                octogonal: {
+                    ...octogonal,
+                    area: octogonal.calcularArea(),
+                },
+                mensagem: 'mensagem_suporte_cadastrado'
+            });
+        } catch (e) {
+            utils.renderizarJSON(res, {
+                mensagem: e.message
+            }, 400);
         }
     }
 
@@ -120,20 +90,17 @@ class SuporteController {
             id: id
         });
     }
-    
+
     async getOctogonalDaRequisicao(req) {
         let corpo = await utils.getCorpo(req);
-    
-        let senha = corpo.senha || 'senha_padrao';
-    
         let octogonal = new Octogonal(
             corpo.nome,
             parseFloat(corpo.lado),
-            senha, 
+            corpo.senha,
             corpo.papel
         );
         return octogonal;
-    }    
+    }
 }
 
 module.exports = SuporteController;
