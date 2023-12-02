@@ -2,7 +2,6 @@ const fs = require('fs');
 const ejs = require('ejs');
 
 const utils = {
-    // chave=valor&chave2=valor2
     decoficarUrl: function (url) {
         let propriedades = url.split('&');
         let query = {};
@@ -37,7 +36,6 @@ const utils = {
                 console.log(i++, corpoTexto);
             });
             req.on('end', () => {
-                // chave=valor&chave2=valor2
                 let corpo = utils.decoficarUrl(corpoTexto);
                 
                 resolve(corpo);

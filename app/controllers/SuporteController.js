@@ -26,76 +26,47 @@ class SuporteController {
             let octogonal = new Octogonal();
             octogonal.nome = query.nome;
             octogonal.lado = parseFloat(query.lado);
-                       
+
+       
             utils.renderizarEjs(res, './views/suporte.ejs', octogonal);
         })
     }
-
+    
     async listar(req, res) {
-        try {
-            let suporte = await this.suporteDao.listar();
-            let dados = [];
-    
-            for (let octogonal of suporte) {
-                const area = octogonal.area;
-                const explicacao = octogonal.explicacao;
-                dados.push({
-                    nome: octogonal.nome,
-                    lado: octogonal.lado,
-                    calcularArea: area,
-                    explicacao: explicacao
-                });
-            }
-    
-            utils.renderizarJSON(res, dados);
-        } catch (error) {
-            utils.renderizarJSON(res, {
-                mensagem: 'Erro ao listar suportes: ' + error.message
-            }, 500);
-        }
+        let octogonais = await this.suporteDao.listar();
+        let dados = octogonais.map(octogonal => {
+            return {
+                ...octogonal,
+                area: octogonal.calcularArea(),
+            };
+        });
+
+        utils.renderizarJSON(res, dados);
     }
     
     async inserir(req, res) {
+        let octogonal = await this.getOctogonalDaRequisicao(req);
         try {
-            let octogonal = await this.getOctogonalDaRequisicao(req);
-    
-            if (!octogonal || isNaN(octogonal.lado)) {
-                utils.renderizarJSON(res, {
-                    mensagem: 'Lado inválido'
-                }, 400);
-            } else {
-                octogonal.id = await this.suporteDao.inserir(octogonal);
-    
-                const area = octogonal.area;
-                const explicacao = octogonal.explicacao;
-    
-                utils.renderizarJSON(res, {
-                    suporte: {
-                        id: octogonal.id,
-                        nome: octogonal.nome,
-                        lado: octogonal.lado,
-                        senha: octogonal.senha,
-                        papel: octogonal.papel,
-                        area: area,
-                        explicacao: explicacao,
-                        tipo: octogonal.tipo
-                    },
-                    mensagem: 'mensagem_suporte_cadastrado'
-                });
-            }
-        } catch (error) {
-            console.error('Error during inserir:', error);
+            octogonal.id = await this.suporteDao.inserir(octogonal);
             utils.renderizarJSON(res, {
-                mensagem: 'Erro durante a inserção'
-            }, 500);
+                octogonal: {
+                    ...octogonal,
+                    area: octogonal.calcularArea(),
+                },
+                mensagem: 'mensagem_suporte_cadastrado'
+            });
+        } catch (e) {
+            utils.renderizarJSON(res, {
+                mensagem: e.message
+            }, 400);
         }
     }
 
     async alterar(req, res) {
         let octogonal = await this.getOctogonalDaRequisicao(req);
-        let [url, queryString] = req.url.split('?');
+        let [ url, queryString ] = req.url.split('?');
         let urlList = url.split('/');
-        let endpoint = urlList[1];
+        url = urlList[1];
         let id = urlList[2];
         try {
             this.suporteDao.alterar(id, octogonal);
@@ -104,11 +75,11 @@ class SuporteController {
             });
         } catch (e) {
             utils.renderizarJSON(res, {
-                mensagem: 'Lado inválido'
+                mensagem: e.message
             }, 400);
         }
     }
-
+    
     apagar(req, res) {
         let [url, queryString] = req.url.split('?');
         let urlList = url.split('/');
@@ -120,20 +91,16 @@ class SuporteController {
             id: id
         });
     }
-    
+
     async getOctogonalDaRequisicao(req) {
         let corpo = await utils.getCorpo(req);
-    
-        let senha = corpo.senha || 'senha_padrao';
-    
         let octogonal = new Octogonal(
             corpo.nome,
             parseFloat(corpo.lado),
-            senha, 
             corpo.papel
         );
         return octogonal;
-    }    
+    }
 }
 
 module.exports = SuporteController;

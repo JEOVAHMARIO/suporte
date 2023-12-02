@@ -1,22 +1,30 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
 </head>
 <body>
-    <%- include ('/home/node/app/views/cabecalho.ejs') %>
-    <h1>Autor</h1>
-    <p>Nome: Jeovah Mario</p>
-    <h2>Formações Acadêmicas</h2>
-    <ul>
-        <li>Técnico em Eletromecânica</li>
-    </ul>
-    <h2>Experiências Profissionais</h2>
-    <ul>
-        <li>Estagiário</li>
-        <li>Seção de motores</li>
-        <li>Ano: 2020</li>
-    </ul>
-    <footer>Desenvolvido por Jeovah Mario</footer>
+    <% include('/home/node/app/views/cabecalho.ejs') %>
+    <h1><%= nome %></h1>
+    <section>
+        <h1>Formações</h1>
+        <ul>
+            <% for (let formacao of formacoes) { %>
+                <li><%= formacao %></li>
+            <% } %>
+        </ul>
+    </section>
+    <section>
+        <h1>Experiência Profissional</h1>
+        <ul>
+            <% for (let experiencia of experienciaProfissional) { %>
+                <li>
+                    <strong>Cargo:</strong> <%= experiencia.cargo %><br>
+                    <strong>Departamento:</strong> <%= experiencia.departamento %><br>
+                    <strong>Ano:</strong> <%= experiencia.ano %>
+                </li>
+            <% } %>
+        </ul>
+    </section>
 </body>
 </html>

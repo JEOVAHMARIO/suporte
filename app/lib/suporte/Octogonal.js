@@ -2,13 +2,13 @@ class Octogonal {
     constructor(nome, lado, senha, papel) {
         this.nome = nome;
         this.lado = parseFloat(lado);
-        this.senha = senha; 
+        this.senha = senha;
         this.papel = papel;
         this.calcularArea();
     }
 
     calcularArea() {
-        if (!isNaN(this.lado)) {
+        if (!isNaN(this.lado) && this.lado >= 0) {
             this.area = 2 * this.lado * this.lado * (1 + Math.sqrt(2));
             this.area = parseFloat(this.area.toFixed(2));
             this.explicacao = this.area < 20 ? 'um suporte pequeno.' : 'um suporte especial.';

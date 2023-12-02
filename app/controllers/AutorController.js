@@ -1,7 +1,7 @@
 const utils = require("../lib/utils");
 
 class AutorController {
-    index(req, res) {
+    autor(req, res) {
         let autor = {
             nome: 'Jeovah Mario',
             formacoes: ['Técnico em Eletromecânica'],

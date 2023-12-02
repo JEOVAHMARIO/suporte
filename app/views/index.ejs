@@ -13,12 +13,13 @@
     </style>
 </head>
 <body>
-    <%- include ('/home/node/app/views/cabecalho.ejs') %>
+    <% include ('/home/node/app/views/cabecalho.ejs') %>
     <img src="_img/logo.png">
     <h1>Cálculo da Área de um Suporte Octogonal!</h1>
     <p><strong>Problema:</strong></p>
     <p>Determine a área de um suporte octogonal com base no comprimento de um dos lados. Se a área for menor que 20 metros quadrados, o suporte é considerado pequeno. Caso contrário, ele é especial.</p>
     <form method="post" onsubmit="event.preventDefault(); calcularArea();">
+        <div id="resposta"></div>
         <label>
             <span>Nome</span>
             <input name="nome">
@@ -27,11 +28,31 @@
             <span>Lado</span>
             <input name="lado">
         </label>
+        <label>
+            <span>ID papel</span>
+            <input name="id_papel" type="number">
+        </label>
         <button type="submit">Ok</button>
-    </form>    
-    <div id="resposta"></div>
-
-    <!-- Adicionando o script aqui -->
-    <script src="/_js/suporte.js"></script>
+    </form>  
+    <button onclick="listar();">Listar</button>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Lado</th>
+            <th></th>
+        </tr>
+        <tbody id="octogonais">
+            <tr>
+                <td>1</td>
+                <td>Ada</td>
+                <td>4</td>
+                <td>
+                    <button onclick="editar(1);">Editar</button>
+                    <button onclick="apagar(1);">Apagar</button>
+                </td>
+            </tr>        
+        </tbody>
+    </table>
 </body>
 </html>

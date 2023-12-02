@@ -8,18 +8,20 @@ class SuporteMysqlDao {
     
     listar() {
         return new Promise((resolve, reject) => {
-            this.pool.query('SELECT * FROM octogonais', function (error, linhas, fields) {
+            this.pool.query('SELECT o.id, o.nome, o.lado, p.nome as papel FROM octogonais o JOIN papeis p ON o.id_papel = p.id', function (error, linhas, fields) {
                 if (error) {
                     return reject('Erro: ' + error.message);
                 }
+    
                 let octogonais = linhas.map(linha => {
-                    let { nome, lado, senha, papel } = linha;
-                    return new Octogonal(nome, lado, senha, papel);
-                })
+                    let { id, nome, lado, papel } = linha;
+                    return new Octogonal(id, nome, lado, papel); // Corrigi a ordem dos parâmetros
+                });
+    
                 resolve(octogonais);
             });
         });
-    }
+    }    
 
     inserir(octogonal) {
         this.validar(octogonal);
@@ -55,27 +57,30 @@ class SuporteMysqlDao {
     
     alterar(id, octogonal) {
         this.validar(octogonal);
-        this.octogonais[id] = octogonal;
         return new Promise((resolve, reject) => {
-            let sql = 'UPDATE octogonais SET nome=?, lado=? WHERE id=?;';
+            let sql = 'UPDATE octogonais SET nome=?, lado=? WHERE id=?';
             this.pool.query(sql, [octogonal.nome, octogonal.lado, id], function (error, resultado, fields) {
                 if (error) {
                     return reject('Erro: ' + error.message);
                 }
-                return resolve(resultado.alterId);
+                // Corrigi o tratamento do resultado da alteração
+                if (resultado.affectedRows > 0) {
+                    resolve(new Octogonal(id, octogonal.nome, octogonal.lado, octogonal.papel));
+                } else {
+                    resolve(null);
+                }
             });
         });
     }
 
     apagar(id) {
-        this.octogonais.splice(id, 1);
         return new Promise((resolve, reject) => {
-            let sql = 'DELETE FROM octogonais WHERE id=?;';
-            this.pool.query(sql, id, function (error, resultado, fields) {
+            let sql = `DELETE FROM octogonais WHERE id=?;`;
+            this.pool.query(sql, [id], function (error, resultado, fields) {
                 if (error) {
                     return reject('Erro: ' + error.message);
                 }
-                return resolve(resultado.deleteId);
+                return resolve(id);
             });
         });
     }
@@ -92,15 +97,15 @@ class SuporteMysqlDao {
     autenticar(nome, senha) {
         return new Promise((resolve, reject) => {
             let sql = 'SELECT * FROM octogonais WHERE nome=?';
-            this.pool.query(sql, [nome, senha], function (error, linhas, fields) {
+            this.pool.query(sql, [nome], function (error, linhas, fields) {
                 if (error) {
                     return reject('Erro: ' + error.message);
                 }
                 for (let linha of linhas) {
                     console.log('autenticar', senha, linha);
                     if (bcrypt.compareSync(senha, linha.senha)) {
-                        let { nome, lado, senha, papel } = linha;
-                        return resolve(new Octogonal(nome, lado, senha, papel));
+                        let { id, nome, lado, papel } = linha;
+                        return resolve(new Octogonal(id, nome, lado, papel));
                     }
                 }
                 return resolve(null);
@@ -108,4 +113,4 @@ class SuporteMysqlDao {
         });
     }
 } 
-module.exports = SuporteMysqlDao; 
+module.exports = SuporteMysqlDao;

@@ -1,10 +1,11 @@
-const Octogonal = require("./Octogonal")
-const bcrypt = require('bcrypt')
+const Octogonal = require("./Octogonal");
+const bcrypt = require('bcrypt');
 
 class SuporteDao {
     constructor() {
         this.octogonais = [];
     }
+
     listar() {
         return this.octogonais;
     }
@@ -25,17 +26,17 @@ class SuporteDao {
     }
 
     validar(octogonal) {
-        if (octogonal.nome == '') {
+        if (octogonal.nome === '') {
             throw new Error('mensagem_nome_em_branco');
         }
         if (octogonal.lado < 0) {
             throw new Error('mensagem_tamanho_invalido');
         }
     }
+
     autenticar(nome, senha) {
-        console.log(octogonal.nome, octogonal.senha);
         for (let octogonal of this.listar()) {
-            if (octogonal.nome == nome && bcrypt.compareSync(senha, octogonal.senha)) {
+            if (octogonal.nome === nome && bcrypt.compareSync(senha, octogonal.senha)) {
                 return octogonal;
             }
         }
